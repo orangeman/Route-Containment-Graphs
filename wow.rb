@@ -1,0 +1,3 @@
+
+print "hgjkhg "
+puts "lkjlkj"
