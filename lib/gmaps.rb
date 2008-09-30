@@ -14,7 +14,8 @@ class GMaps
   
     if File.exist? path
       kml = File.new(path, 'r').read
-    else  
+    else
+      return nil  
       kml = downloadKML from, to
       if save && (kml =~ /Distance: ([\d,]*)/)
         unless File.exist?((@@kml_path+from).gsub(' ','_'))

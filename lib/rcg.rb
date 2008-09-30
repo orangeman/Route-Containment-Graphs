@@ -3,25 +3,23 @@ require "pqueue"
 
 
 class RCG
-  
+  $MAX_DETOUR = 50
   attr_accessor :routes, :lookUp
   
   def initialize(routes)
-    puts "sorting routes.. "
-    @routes = routes.sort { |x, y| x.distance <=> y.distance }
-    puts "finished."
-    Route.routes = @routes
+    @routes = routes
     @shortct_count = 0
     @removed_count = 0
     @revisit_count = 0
     @created_count = 0
     @routes.each do |route|
       puts "- processing #{route}"
-      Route.find(route.from).each do |bigger|
+      Route.lookUp(route.from).each do |bigger|
         next if route == bigger || bigger.dist == 0 || route.dist == 0
         det = bigger.detour_via(route)
-        if det*100/bigger.dist < 50
-          # puts "-> #{route} IS_CONTAINED_BY #{bigger}  DETOUR: #{det} (=#{route.dist}+#{Route.find(route.to,bigger.to).dist}-#{bigger.dist})"
+        # if det*100/bigger.dist < $THRESHOLD
+        if det < $MAX_DETOUR
+          # puts "-> #{route} IS_CONTAINED_BY #{bigger}  DETOUR: #{det} (=#{route.dist}+#{Route.lookUp(route.to,bigger.to).dist}-#{bigger.dist})"
           @created_count += 1
           bigger.add_containee route
           route.containees.each do |smaller|  
@@ -41,8 +39,11 @@ class RCG
         else
           # puts "-> #{route} too much detour #{bigger}  more than 30 % !!!"  
         end  
-      end  
+      end 
     end
+    File.open("../generated/rcg_50lin_30th_routes}.dump", "w") { |file| Marshal.dump(@routes, file) } 
+  end
+  def sort
     puts
     puts "sorting.."
     @routes.each do |route|
@@ -52,13 +53,19 @@ class RCG
   end
   
   def print
-    containment_count = 0
-    detours_count = 0
     @routes.each do |route|
       puts "=> #{route}"
       route.containees.each do |c|  
         puts "    - VIA #{c}  DETOUR #{route.detour_via c}"
       end
+    end  
+    stats
+  end
+  
+  def stats
+    containment_count = 0
+    detours_count = 0
+    @routes.each do |route|
       containment_count += route.containers.size
       detours_count += route.detours.size
     end 
@@ -77,19 +84,20 @@ class RCG
     puts
   end
   
+  
   def search(from, to)
     # puts "searching from #{from} to #{to}.."
     
-    query = Route.find(from, to)
+    query = Route.lookUp(from, to)
     query.detour = 0
 
     pq = PQueue.new proc{ |x,y| 
-      # if x.detour != y.detour
-      #   x.detour < y.detour
-      if x.detour_via(query) != y.detour_via(query)
-              x.detour_via(query) < y.detour_via(query)
-      # elsif x.time_to_pickup(query) != y.time_to_pickup(query)
-      #   x.time_to_pickup(query) < y.time_to_pickup(query)
+      if x.detour != y.detour
+        x.detour < y.detour
+      # if x.detour_via(query) != y.detour_via(query)
+      #         x.detour_via(query) < y.detour_via(query)
+      elsif x.time_to_pickup(query) != y.time_to_pickup(query)
+        x.time_to_pickup(query) < y.time_to_pickup(query)
       else  
         x.dist < y.dist
       end
@@ -99,14 +107,15 @@ class RCG
     push_count = 0
     # while pq.size > 0
     pq.each_pop do |route|
-      route.detour = route.detour_via(query)
+      # route.detour = route.detour_via(query)
       res << route
       # puts "=> pop: #{route} with REAL detour #{route.detour_via query}"
       # puts "          => "+pq.to_a.to_s
-      route.containers.each do |bigger|
+      route.all_containers.each do |bigger|
         push_count += 1
         unless pq.qarray.include?(bigger) || res.include?(bigger)
-          # puts "      - push: #{bigger} with REAL detour #{bigger.detour_via query} (=#{route.detour}+#{bigger.detour_via route})"
+          bigger.detour = bigger.detour_via query
+          # puts "                 - push: #{bigger.from}->#{bigger.to}: #{bigger.detour} "
           pq.push bigger
         else  
           # puts "     (- push: #{bigger} with REAL detour #{bigger.detour_via query} (=#{route.detour}+#{bigger.detour_via route}))"
@@ -118,6 +127,10 @@ class RCG
     # puts "pushes:  #{push_count}"
     # puts "results: #{res.size}"
     res
+  end
+  
+  def generate_rcg
+    
   end
   
   
