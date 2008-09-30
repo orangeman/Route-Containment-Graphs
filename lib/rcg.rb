@@ -41,7 +41,6 @@ class RCG
         end  
       end 
     end
-    File.open("../generated/rcg_50lin_30th_routes}.dump", "w") { |file| Marshal.dump(@routes, file) } 
   end
   def sort
     puts

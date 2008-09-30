@@ -66,8 +66,12 @@ class Route
     # puts "calculated detour for #{self} via #{route}: #{@detours[route]} = #{lookUp(from][route.from].dist} + #{route.dist} + #{lookUp(route.to][to].dist} - #{distance}"
   end
   
-  def time_to_pickup(route)
-    Route.lookUp(from,route.from).dist
+  def time_to_pickup(route=nil)
+    if route
+      @time_to_pickup = Route.lookUp(from,route.from).dist
+    else
+      @time_to_pickup || '??'
+    end   
   end
   
 

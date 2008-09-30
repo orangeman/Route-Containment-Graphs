@@ -11,7 +11,9 @@ class TestRcg < Test::Unit::TestCase
   TESTS = 10_000
   
   # locs = 'München', 'Nürnberg', 'Ingolstadt', 'Erlangen', 'Frankfurt Main','Würzburg', 'Stuttgart', 'Augsburg'
-  locs = 'Ulm', 'Hamburg', 'Berlin', 'München', 'Nürnberg', 'Würzburg', 'Ingolstadt', 'Erlangen', 'Frankfurt Main', 'Köln', 'Kassel', 'Paderborn', 'Hannover', 'Osnabrück', 'Oldenburg Oldb', 'Stuttgart', 'Augsburg'
+  locs = 'Ulm', 'Hamburg', 'Berlin', 'München', 'Nürnberg', 'Würzburg', 'Ingolstadt', 'Erlangen', 'Frankfurt Main',
+          'Köln', 'Kassel', 'Paderborn', 'Hannover', 'Osnabrück', 'Oldenburg Oldb', 'Stuttgart', 'Augsburg',
+          'Leipzig', 'Erfurt', 'Dresden', 'Bremen', 'Magdeburg', 'Chemnitz', 'Göttingen', 'Regensburg', 'Karlsruhe'
   @@routes = []
   locs.each do |o|
     locs.each do |d|
